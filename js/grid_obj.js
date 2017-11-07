@@ -5,42 +5,45 @@ app.Game_Grid_Object = {
     //---PROPERTIES---//
     total_number_of_segments: undefined,
     segment_array: [],
-    word_bank: "DAIRY",
+    word_bank: ["DAIRY", "MEAT", "COW"],
+    word_locations: [],
     
     //---METHODS---//
     init: function(canvas_context)
     {
         this.total_number_of_segments = 49;
         this.init_segments();
+        var all_word_location_possibilities = [];
         
-        //---for each wprd in the grid's word bank, find the length
-        //------right now, just one word
-        var length_of_word = this.word_bank.length;
-        //---for each segment on the grid, see if the word will fit in any of the 8 directions
-        //---add all the possibilities into an array
-        //---choose a random selection, render the word, then render all random letters        
-        var word_location_possibilities = [];
-        this.find_word_location_possibilities(this.segment_array.length, length_of_word, word_location_possibilities);
-            
-        
-        var chosen_selection = Math.floor(Math.random() * (word_location_possibilities.length));
-        var word_letters = this.word_bank.split("");
-        
-        for(var f = 0; f < word_location_possibilities[chosen_selection].length; f++)
+        for(var word = 0; word < this.word_bank.length; word++)
         {
-            this.segment_array[word_location_possibilities[chosen_selection][f]].letter = word_letters[f];
+            //---for each word in the grid's word bank, find the length
+            var length_of_word = this.word_bank[word].length;
+            //---for each segment on the grid, see if the word will fit in any of the 8 directions
+            var word_location_possibilities = [];
+            this.find_word_location_possibilities(this.segment_array.length, length_of_word, word_location_possibilities);
+            //---add all the possibilities into an array
+            all_word_location_possibilities.push(word_location_possibilities);
+        }
+        
+        for(var word = 0; word < this.word_bank.length; word++)
+        {
+            //---for each word in the grid's word bank, choose a random location selection, assign the word's location, then...
+            var split_word = this.word_bank[word].split("");
+            this.assign_word_location(all_word_location_possibilities, word, split_word);
         }
         
         for(var segment = 0; segment < this.segment_array.length; segment++)
         {
+            //...render all the letters
             if(this.segment_array[segment].letter == "")
             {
                 this.segment_array[segment].letter = this.generate_random_letter();
             }
             canvas_context.font="20px Georgia";
+            canvas_context.fillStyle = "black";
             canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 10));
         }
-        
     },
     
     init_segments: function()
@@ -152,6 +155,38 @@ app.Game_Grid_Object = {
                 }
                 word_location_possibilities.push(possible_arrangement);
             }
+        }
+    },
+    
+    assign_word_location: function(all_word_location_possibilities, current_word, current_word_split)
+    {
+        var word_loc = Math.floor(Math.random() * (all_word_location_possibilities[current_word].length));
+        
+        for(var segment = 0; segment < all_word_location_possibilities[current_word][word_loc].length; segment++)
+        {
+            //---For each segment the current word will use, check if that segment already has a letter. If that letter is equal 
+            //   to the one currently being assigned, then just move on. If not, then the function has to be restarted
+            var segment_index = all_word_location_possibilities[current_word][word_loc][segment];
+            if(this.segment_array[segment_index].letter != "")
+            {
+                if(this.segment_array[segment_index].letter == current_word_split[segment])
+                {
+                    continue;
+                }
+                else
+                {
+                    this.assign_word_location(all_word_location_possibilities, current_word, current_word_split);
+                    return;
+                }
+            }
+        }
+        
+        for(var segment = 0; segment < all_word_location_possibilities[current_word][word_loc].length; segment++)
+        {
+            var segment_index = all_word_location_possibilities[current_word][word_loc][segment];
+            this.segment_array[segment_index].letter = current_word_split[segment];
+            canvas_context.fillStyle = "#b7f1ff";
+            canvas_context.fillRect(this.segment_array[segment_index].xpos, this.segment_array[segment_index].ypos, this.segment_array[segment_index].width, this.segment_array[segment_index].height);
         }
     },
     

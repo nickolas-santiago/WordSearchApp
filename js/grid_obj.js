@@ -36,30 +36,25 @@ app.Game_Grid_Object = {
         
         //...render it all.
         var ss = this.segment_array;
-        
         canvas.addEventListener('mousemove', function(evt)
         {
             mouse_pos = getMouse(canvas, evt);
             for(var segment = 0; segment < ss.length; segment++)
             {
                 if((mouse_pos.x > (ss[segment].xpos + ((ss[segment].width/2) - ((canvas_context.measureText(ss[segment].letter).width)/2)))) &&
-                   (mouse_pos.y > (ss[segment].ypos + ((ss[segment].height/2) - (20/2)))) &&
-                   (mouse_pos.x < ((ss[segment].xpos + (ss[segment].width/2) + ((canvas_context.measureText(ss[segment].letter).width)/2)))) &&
-                   (mouse_pos.y < ((ss[segment].ypos + (ss[segment].height/2) + 10))))
+                (mouse_pos.y > (ss[segment].ypos + ((ss[segment].height/2) - (20/2)))) &&
+                (mouse_pos.x < ((ss[segment].xpos + (ss[segment].width/2) + ((canvas_context.measureText(ss[segment].letter).width)/2)))) &&
+                (mouse_pos.y < ((ss[segment].ypos + (ss[segment].height/2) + 10))))
                 {
-                    console.log(ss[segment]);
+                    ss[segment].is_hovered = true;
+                }
+                else
+                {
+                    ss[segment].is_hovered = false;
                 }
             }
             
-        });
-        
-        for(var segment = 0; segment < this.segment_array.length; segment++)
-        {
-            canvas_context.fillRect((this.segment_array[segment].xpos + ((this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2))),
-                                    (this.segment_array[segment].ypos + ((this.segment_array[segment].height/2) - (20/2))),
-                                    ((this.segment_array[segment].xpos + this.segment_array[segment].width) - ((this.segment_array[segment].width/2) + ((canvas_context.measureText(this.segment_array[segment].letter).width)/2))),
-                                    ((this.segment_array[segment].ypos + this.segment_array[segment].height) - ((this.segment_array[segment].height/2) + (20/2))));
-        }
+        }, false);
         
         this.update(mouse_pos);
     },
@@ -84,6 +79,7 @@ app.Game_Grid_Object = {
             segment.xpos = segment.width * segment.column;
             segment.ypos = segment.height * segment.row;
             segment.letter = "";
+            segment.is_hovered = false;
             this.segment_array.push(segment);
         }
     },
@@ -221,28 +217,35 @@ app.Game_Grid_Object = {
         canvas_context.fillStyle = "white";
         canvas_context.fillRect(0, 0, canvas.width, canvas.height);
         
+        canvas_context.fillStyle = "black";
         for(var segment = 0; segment < this.segment_array.length; segment++)
         {
             //...render all the letters
             if(this.segment_array[segment].letter == "")
             {
                 this.segment_array[segment].letter = this.generate_random_letter();
+            }            
+            if(this.segment_array[segment].is_hovered == true)
+            {
+                canvas_context.font="40px Georgia";
+                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 20));
             }
-            canvas_context.font="20px Georgia";
-            canvas_context.fillStyle = "black";
-            canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 10));
+            else if(this.segment_array[segment].is_hovered == false)
+            {
+                canvas_context.font="20px Georgia";
+                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 10));
+            }
             
-            canvas_context.strokeRect((this.segment_array[segment].xpos + ((this.segment_array[segment].width/2)) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), 
+            /*canvas_context.strokeRect((this.segment_array[segment].xpos + ((this.segment_array[segment].width/2)) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), 
                                       (this.segment_array[segment].ypos + ((this.segment_array[segment].height/2) - (10/2))), 
                                       ((canvas_context.measureText(this.segment_array[segment].letter).width)), 
-                                       20);
+                                       20);*/
         }
     },
     
     update: function(mouse_pos)
     {
         this.animationID = requestAnimationFrame(this.update.bind(this));
-        
         this.render_grid();
     }
 };

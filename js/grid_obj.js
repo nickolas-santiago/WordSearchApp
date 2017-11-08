@@ -5,6 +5,7 @@ app.Game_Grid_Object = {
     //---PROPERTIES---//
     total_number_of_segments: undefined,
     segment_array: [],
+    lines_array: [],
     word_bank: ["DAIRY", "MEAT", "COW"],
     word_locations: [],
     
@@ -15,6 +16,7 @@ app.Game_Grid_Object = {
         this.total_number_of_segments = 49;
         this.init_segments();
         var all_word_location_possibilities = [];
+        var is_mousedown_true = false;
         
         for(var word = 0; word < this.word_bank.length; word++)
         {
@@ -36,6 +38,7 @@ app.Game_Grid_Object = {
         
         //...render it all.
         var ss = this.segment_array;
+        var lines = this.lines_array;
         canvas.addEventListener('mousemove', function(evt)
         {
             mouse_pos = getMouse(canvas, evt);
@@ -53,10 +56,28 @@ app.Game_Grid_Object = {
                     ss[segment].is_hovered = false;
                 }
             }
-            
-        }, false);
+            if(is_mousedown_true == true)
+            {
+                var x = lines.length - 1;
+                lines[x].x2 = mouse_pos.x;
+                lines[x].y2 = mouse_pos.y;
+            }
+        },false);
+        canvas.addEventListener('mousedown', function(evt)
+        {
+            var origin_point = mouse_pos;
+            var line = {};
+            is_mousedown_true = true;
+            line.x1 = line.x2 = origin_point.x;
+            line.y1 = line.y2 = origin_point.y;
+            lines.push(line);
+        },false);
+        canvas.addEventListener('mouseup', function(evt)
+        {
+            is_mousedown_true = false;
+        },false);
         
-        this.update(mouse_pos);
+        this.update();
     },
     
     init_segments: function()
@@ -235,15 +256,18 @@ app.Game_Grid_Object = {
                 canvas_context.font="20px Georgia";
                 canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 10));
             }
-            
-            /*canvas_context.strokeRect((this.segment_array[segment].xpos + ((this.segment_array[segment].width/2)) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), 
-                                      (this.segment_array[segment].ypos + ((this.segment_array[segment].height/2) - (10/2))), 
-                                      ((canvas_context.measureText(this.segment_array[segment].letter).width)), 
-                                       20);*/
+        }
+        //---render any lines
+        for(var line = 0; line < this.lines_array.length; line++)
+        {
+            canvas_context.beginPath();
+            canvas_context.moveTo(this.lines_array[line].x1,this.lines_array[line].y1);
+            canvas_context.lineTo(this.lines_array[line].x2,this.lines_array[line].y2);
+            canvas_context.stroke();
         }
     },
     
-    update: function(mouse_pos)
+    update: function()
     {
         this.animationID = requestAnimationFrame(this.update.bind(this));
         this.render_grid();

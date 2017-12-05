@@ -14,9 +14,17 @@ app.Game_Grid_Object = {
     {
         var mouse_pos;
         this.total_number_of_segments = 49;
-        this.init_segments();
+        this.initSegments();
         var all_word_location_possibilities = [];
         var is_mousedown_true = false;
+        var is_hovering = false;
+        var hover_segment;
+        
+        //---references for event listeners
+        var grid_segment_array = this.segment_array;
+        var grid_lines_array = this.lines_array;
+        var lastanchor = "";
+        var locc = this.word_locations;
         
         for(var word = 0; word < this.word_bank.length; word++)
         {
@@ -24,63 +32,132 @@ app.Game_Grid_Object = {
             var length_of_word = this.word_bank[word].length;
             //---for each segment on the grid, see if the word will fit in any of the 8 directions
             var word_location_possibilities = [];
-            this.find_word_location_possibilities(this.segment_array.length, length_of_word, word_location_possibilities);
+            this.findWordLocationPossibilities(this.segment_array.length, length_of_word, word_location_possibilities);
             //---add all the possibilities into an array
             all_word_location_possibilities.push(word_location_possibilities);
         }
         
         for(var word = 0; word < this.word_bank.length; word++)
         {
-            //---for each word in the grid's word bank, choose a random location selection, assign the word's location, then...
+            //---for each word in the grid's word bank, choose a random location selection, assign the word's location
             var split_word = this.word_bank[word].split("");
-            this.assign_word_location(all_word_location_possibilities, word, split_word);
+            var chosen_word_location;
+            this.assignWordLocation(all_word_location_possibilities, word, split_word);
         }
         
-        //...render it all.
-        var ss = this.segment_array;
-        var lines = this.lines_array;
+        //---event listeners
         canvas.addEventListener('mousemove', function(evt)
         {
             mouse_pos = getMouse(canvas, evt);
-            for(var segment = 0; segment < ss.length; segment++)
+            for(var segment = 0; segment < grid_segment_array.length; segment++)
             {
-                if((mouse_pos.x > (ss[segment].xpos + ((ss[segment].width/2) - ((canvas_context.measureText(ss[segment].letter).width)/2)))) &&
-                (mouse_pos.y > (ss[segment].ypos + ((ss[segment].height/2) - (20/2)))) &&
-                (mouse_pos.x < ((ss[segment].xpos + (ss[segment].width/2) + ((canvas_context.measureText(ss[segment].letter).width)/2)))) &&
-                (mouse_pos.y < ((ss[segment].ypos + (ss[segment].height/2) + 10))))
+                if((mouse_pos.x > (grid_segment_array[segment].xpos + ((grid_segment_array[segment].width/2) - ((canvas_context.measureText(grid_segment_array[segment].letter).width)/2)))) &&
+                (mouse_pos.y > (grid_segment_array[segment].ypos + ((grid_segment_array[segment].height/2) - (20/2)))) &&
+                (mouse_pos.x < ((grid_segment_array[segment].xpos + (grid_segment_array[segment].width/2) + ((canvas_context.measureText(grid_segment_array[segment].letter).width)/2)))) &&
+                (mouse_pos.y < ((grid_segment_array[segment].ypos + (grid_segment_array[segment].height/2) + 10))))
                 {
-                    ss[segment].is_hovered = true;
+                    grid_segment_array[segment].is_hovered = true;
+                    hover_segment = grid_segment_array[segment];
+                    if(is_mousedown_true == true && grid_segment_array[segment] != lastanchor)
+                    {
+                        var a_point = {};
+                        var current_line = (grid_lines_array.length - 1);
+                        var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
+                        a_point.x = (grid_segment_array[segment].xpos + (grid_segment_array[segment].width/2));
+                        a_point.y = (grid_segment_array[segment].ypos + (grid_segment_array[segment].height/2));
+                        a_point.index = grid_segment_array[segment].index;
+                        grid_lines_array[current_line].line_points.splice(current_line_last_point, 0, a_point);
+                        lastanchor = grid_segment_array[segment];
+                    }
+                    return;
                 }
                 else
                 {
-                    ss[segment].is_hovered = false;
+                    grid_segment_array[segment].is_hovered = false;
                 }
             }
             if(is_mousedown_true == true)
             {
-                var x = lines.length - 1;
-                lines[x].x2 = mouse_pos.x;
-                lines[x].y2 = mouse_pos.y;
+                var current_line = (grid_lines_array.length - 1);
+                var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
+                var mouse = {};
+                mouse.x = mouse_pos.x;
+                mouse.y = mouse_pos.y;
+                grid_lines_array[current_line].line_points.splice(current_line_last_point, 1, mouse);
+                
             }
         },false);
         canvas.addEventListener('mousedown', function(evt)
         {
-            var origin_point = mouse_pos;
-            var line = {};
             is_mousedown_true = true;
-            line.x1 = line.x2 = origin_point.x;
-            line.y1 = line.y2 = origin_point.y;
-            lines.push(line);
+            var line = {};
+            line.line_points = [];
+            var point = mouse_pos;
+            if(hover_segment != "")
+            {
+                point.x = (hover_segment.xpos + (hover_segment.width/2));
+                point.y = (hover_segment.ypos + (hover_segment.height/2));
+                point.i = hover_segment.index;
+            }
+            line.line_points.push(point);
+            grid_lines_array.push(line);
         },false);
         canvas.addEventListener('mouseup', function(evt)
         {
             is_mousedown_true = false;
+            lastanchor = "";
+            
+            var current_line = (grid_lines_array.length - 1);
+            var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
+            var current_line_last_anchor_point = (grid_lines_array[current_line].line_points.length - 2);
+            grid_lines_array[current_line].line_points.splice(current_line_last_point, 1);
+            
+            //---check line
+            var keep_line = false;
+            if(grid_lines_array[current_line].line_points.length == 0)
+            {
+                grid_lines_array.splice(current_line, 1);
+            }
+            else
+            {
+                for(var current_word = 0; current_word < locc.length; current_word++)
+                {
+                    console.log(locc[current_word]);
+                    var current_word_last_letter = locc[current_word].length - 1;
+                    if(((grid_lines_array[current_line].line_points[0].index == locc[current_word][0]) && (grid_lines_array[current_line].line_points[current_line_last_anchor_point].index == locc[current_word][current_word_last_letter])) || ((grid_lines_array[current_line].line_points[0].index == locc[current_word][current_word_last_letter]) && (grid_lines_array[current_line].line_points[current_line_last_anchor_point].index == locc[current_word][0])))
+                    {
+                        keep_line = true;
+                        for(var i = 0; i < grid_lines_array[current_line].line_points.length; i++)
+                        {
+                            keep_line = locc[current_word].some(function(age)
+                            {
+                                return age == grid_lines_array[current_line].line_points[i].index;
+                            });
+                            if(keep_line == true)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                grid_lines_array.splice(current_line, 1);
+                                return;
+                            }
+                            
+                        }
+                    }
+                }
+                if(keep_line == false)
+                {
+                    grid_lines_array.splice(current_line, 1);
+                }
+            }
         },false);
         
+        //---render everything
         this.update();
     },
     
-    init_segments: function()
+    initSegments: function()
     {
         var grid_row = 0;
         var grid_column = 0;
@@ -101,11 +178,12 @@ app.Game_Grid_Object = {
             segment.ypos = segment.height * segment.row;
             segment.letter = "";
             segment.is_hovered = false;
+            segment.index = i;
             this.segment_array.push(segment);
         }
     },
     
-    find_word_location_possibilities: function(segment_array_length, length_of_word, word_location_possibilities)
+    findWordLocationPossibilities: function(segment_array_length, length_of_word, word_location_possibilities)
     {
         for(var segment = 0; segment < segment_array_length; segment++)
         {
@@ -193,7 +271,7 @@ app.Game_Grid_Object = {
         }
     },
     
-    assign_word_location: function(all_word_location_possibilities, current_word, current_word_split)
+    assignWordLocation: function(all_word_location_possibilities, current_word, current_word_split)
     {
         var word_loc = Math.floor(Math.random() * (all_word_location_possibilities[current_word].length));
         
@@ -210,22 +288,20 @@ app.Game_Grid_Object = {
                 }
                 else
                 {
-                    this.assign_word_location(all_word_location_possibilities, current_word, current_word_split);
+                    this.assignWordLocation(all_word_location_possibilities, current_word, current_word_split);
                     return;
                 }
             }
         }
-        
         for(var segment = 0; segment < all_word_location_possibilities[current_word][word_loc].length; segment++)
         {
             var segment_index = all_word_location_possibilities[current_word][word_loc][segment];
             this.segment_array[segment_index].letter = current_word_split[segment];
-            canvas_context.fillStyle = "#b7f1ff";
-            canvas_context.fillRect(this.segment_array[segment_index].xpos, this.segment_array[segment_index].ypos, this.segment_array[segment_index].width, this.segment_array[segment_index].height);
         }
+        this.word_locations.push(all_word_location_possibilities[current_word][word_loc]);
     },
     
-    generate_random_letter: function()
+    generateRandomLetter: function()
     {
         var text = "";
         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -233,36 +309,49 @@ app.Game_Grid_Object = {
         return text;
     },
     
-    render_grid: function()
+    renderGrid: function()
     {
         canvas_context.fillStyle = "white";
         canvas_context.fillRect(0, 0, canvas.width, canvas.height);
         
         canvas_context.fillStyle = "black";
+        canvas_context.textAlign = "center"; 
+        canvas_context.textBaseline = "middle"; 
         for(var segment = 0; segment < this.segment_array.length; segment++)
         {
             //...render all the letters
             if(this.segment_array[segment].letter == "")
             {
-                this.segment_array[segment].letter = this.generate_random_letter();
+                this.segment_array[segment].letter = this.generateRandomLetter();
             }            
             if(this.segment_array[segment].is_hovered == true)
             {
                 canvas_context.font="40px Georgia";
-                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 20));
+                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
             }
             else if(this.segment_array[segment].is_hovered == false)
             {
                 canvas_context.font="20px Georgia";
-                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2) - ((canvas_context.measureText(this.segment_array[segment].letter).width)/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2) + 10));
+                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
             }
+            canvas_context.strokeStyle = "black";
+            canvas_context.strokeRect(this.segment_array[segment].xpos, this.segment_array[segment].ypos, this.segment_array[segment].width, this.segment_array[segment].height);
         }
-        //---render any lines
+    },
+    
+    renderLines: function()
+    {
         for(var line = 0; line < this.lines_array.length; line++)
         {
             canvas_context.beginPath();
-            canvas_context.moveTo(this.lines_array[line].x1,this.lines_array[line].y1);
-            canvas_context.lineTo(this.lines_array[line].x2,this.lines_array[line].y2);
+            canvas_context.moveTo(this.lines_array[line].line_points[0].x, this.lines_array[line].line_points[0].y);
+            if(this.lines_array[line].line_points.length > 1)
+            {
+                for(var line_point = 1; line_point < this.lines_array[line].line_points.length; line_point++)
+                {
+                    canvas_context.lineTo(this.lines_array[line].line_points[line_point].x, this.lines_array[line].line_points[line_point].y);
+                }
+            }
             canvas_context.stroke();
         }
     },
@@ -270,6 +359,7 @@ app.Game_Grid_Object = {
     update: function()
     {
         this.animationID = requestAnimationFrame(this.update.bind(this));
-        this.render_grid();
+        this.renderGrid();
+        this.renderLines();
     }
 };

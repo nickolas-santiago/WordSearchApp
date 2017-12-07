@@ -6,155 +6,29 @@ app.Game_Grid_Object = {
     total_number_of_segments: undefined,
     segment_array: [],
     lines_array: [],
-    word_bank: ["DAIRY", "MEAT", "COW"],
+    word_bank: [],
+    //word_bank: ["DAIRY", "MEAT", "COW"],
     word_locations: [],
+    found_words: [],
     
     //---METHODS---//
-    init: function(canvas_context)
+    init: function(canvas_context, total_number_of_segments, word_bank)
     {
-        var mouse_pos;
-        this.total_number_of_segments = 49;
-        this.initSegments();
-        var all_word_location_possibilities = [];
-        var is_mousedown_true = false;
-        var is_hovering = false;
-        var hover_segment;
+        this.total_number_of_segments = 144;
+        //this.total_number_of_segments = (total_number_of_segments * total_number_of_segments);
+        this.word_bank = word_bank;
         
-        //---references for event listeners
-        var grid_segment_array = this.segment_array;
-        var grid_lines_array = this.lines_array;
-        var lastanchor = "";
-        var locc = this.word_locations;
-        
-        for(var word = 0; word < this.word_bank.length; word++)
-        {
-            //---for each word in the grid's word bank, find the length
-            var length_of_word = this.word_bank[word].length;
-            //---for each segment on the grid, see if the word will fit in any of the 8 directions
-            var word_location_possibilities = [];
-            this.findWordLocationPossibilities(this.segment_array.length, length_of_word, word_location_possibilities);
-            //---add all the possibilities into an array
-            all_word_location_possibilities.push(word_location_possibilities);
-        }
-        
-        for(var word = 0; word < this.word_bank.length; word++)
-        {
-            //---for each word in the grid's word bank, choose a random location selection, assign the word's location
-            var split_word = this.word_bank[word].split("");
-            var chosen_word_location;
-            this.assignWordLocation(all_word_location_possibilities, word, split_word);
-        }
-        
-        //---event listeners
-        canvas.addEventListener('mousemove', function(evt)
-        {
-            mouse_pos = getMouse(canvas, evt);
-            for(var segment = 0; segment < grid_segment_array.length; segment++)
-            {
-                if((mouse_pos.x > (grid_segment_array[segment].xpos + ((grid_segment_array[segment].width/2) - ((canvas_context.measureText(grid_segment_array[segment].letter).width)/2)))) &&
-                (mouse_pos.y > (grid_segment_array[segment].ypos + ((grid_segment_array[segment].height/2) - (20/2)))) &&
-                (mouse_pos.x < ((grid_segment_array[segment].xpos + (grid_segment_array[segment].width/2) + ((canvas_context.measureText(grid_segment_array[segment].letter).width)/2)))) &&
-                (mouse_pos.y < ((grid_segment_array[segment].ypos + (grid_segment_array[segment].height/2) + 10))))
-                {
-                    grid_segment_array[segment].is_hovered = true;
-                    hover_segment = grid_segment_array[segment];
-                    if(is_mousedown_true == true && grid_segment_array[segment] != lastanchor)
-                    {
-                        var a_point = {};
-                        var current_line = (grid_lines_array.length - 1);
-                        var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
-                        a_point.x = (grid_segment_array[segment].xpos + (grid_segment_array[segment].width/2));
-                        a_point.y = (grid_segment_array[segment].ypos + (grid_segment_array[segment].height/2));
-                        a_point.index = grid_segment_array[segment].index;
-                        grid_lines_array[current_line].line_points.splice(current_line_last_point, 0, a_point);
-                        lastanchor = grid_segment_array[segment];
-                    }
-                    return;
-                }
-                else
-                {
-                    grid_segment_array[segment].is_hovered = false;
-                }
-            }
-            if(is_mousedown_true == true)
-            {
-                var current_line = (grid_lines_array.length - 1);
-                var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
-                var mouse = {};
-                mouse.x = mouse_pos.x;
-                mouse.y = mouse_pos.y;
-                grid_lines_array[current_line].line_points.splice(current_line_last_point, 1, mouse);
-                
-            }
-        },false);
-        canvas.addEventListener('mousedown', function(evt)
-        {
-            is_mousedown_true = true;
-            var line = {};
-            line.line_points = [];
-            var point = mouse_pos;
-            if(hover_segment != "")
-            {
-                point.x = (hover_segment.xpos + (hover_segment.width/2));
-                point.y = (hover_segment.ypos + (hover_segment.height/2));
-                point.i = hover_segment.index;
-            }
-            line.line_points.push(point);
-            grid_lines_array.push(line);
-        },false);
-        canvas.addEventListener('mouseup', function(evt)
-        {
-            is_mousedown_true = false;
-            lastanchor = "";
-            
-            var current_line = (grid_lines_array.length - 1);
-            var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
-            var current_line_last_anchor_point = (grid_lines_array[current_line].line_points.length - 2);
-            grid_lines_array[current_line].line_points.splice(current_line_last_point, 1);
-            
-            //---check line
-            var keep_line = false;
-            if(grid_lines_array[current_line].line_points.length == 0)
-            {
-                grid_lines_array.splice(current_line, 1);
-            }
-            else
-            {
-                for(var current_word = 0; current_word < locc.length; current_word++)
-                {
-                    console.log(locc[current_word]);
-                    var current_word_last_letter = locc[current_word].length - 1;
-                    if(((grid_lines_array[current_line].line_points[0].index == locc[current_word][0]) && (grid_lines_array[current_line].line_points[current_line_last_anchor_point].index == locc[current_word][current_word_last_letter])) || ((grid_lines_array[current_line].line_points[0].index == locc[current_word][current_word_last_letter]) && (grid_lines_array[current_line].line_points[current_line_last_anchor_point].index == locc[current_word][0])))
-                    {
-                        keep_line = true;
-                        for(var i = 0; i < grid_lines_array[current_line].line_points.length; i++)
-                        {
-                            keep_line = locc[current_word].some(function(age)
-                            {
-                                return age == grid_lines_array[current_line].line_points[i].index;
-                            });
-                            if(keep_line == true)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                grid_lines_array.splice(current_line, 1);
-                                return;
-                            }
-                            
-                        }
-                    }
-                }
-                if(keep_line == false)
-                {
-                    grid_lines_array.splice(current_line, 1);
-                }
-            }
-        },false);
+        this.createGrid();
         
         //---render everything
         this.update();
+    },
+    
+    createGrid: function()
+    {
+        this.initSegments();
+        this.initGrid();
+        this.initEventListeners();
     },
     
     initSegments: function()
@@ -180,6 +54,37 @@ app.Game_Grid_Object = {
             segment.is_hovered = false;
             segment.index = i;
             this.segment_array.push(segment);
+        }
+    },
+    
+    initGrid: function()
+    {
+        var all_word_location_possibilities = [];   
+        for(var word = 0; word < this.word_bank.length; word++)
+        {
+            //---for each word in the grid's word bank, find the length
+            var length_of_word = this.word_bank[word].length;
+            //---for each segment on the grid, see if the word will fit in any of the 8 directions
+            var word_location_possibilities = [];
+            this.findWordLocationPossibilities(this.segment_array.length, length_of_word, word_location_possibilities);
+            //---add all the possibilities into an array
+            all_word_location_possibilities.push(word_location_possibilities);
+        }
+        for(var word = 0; word < this.word_bank.length; word++)
+        {
+            //---for each word in the grid's word bank, choose a random location selection, assign the word's location
+            var split_word = this.word_bank[word].split("");
+            var chosen_word_location;
+            this.assignWordLocation(all_word_location_possibilities, word, split_word);
+        }
+        
+        for(var segment = 0; segment < this.segment_array.length; segment++)
+        {
+            //render all the letters
+            if(this.segment_array[segment].letter == "")
+            {
+                this.segment_array[segment].letter = this.generateRandomLetter();
+            }
         }
     },
     
@@ -309,6 +214,157 @@ app.Game_Grid_Object = {
         return text;
     },
     
+    initEventListeners: function()
+    {
+        var self = this;
+        //---references for event listeners
+        var mouse_pos;
+        var is_mousedown_true = false;
+        var is_hovering = false;
+        var hover_segment;
+        var lastanchor = "";
+        
+        //---event listeners
+        canvas.addEventListener('mousemove', function(evt)
+        {
+            mouse_pos = getMouse(canvas, evt);
+            for(var segment = 0; segment < self.segment_array.length; segment++)
+            {
+                if((mouse_pos.x > (self.segment_array[segment].xpos + ((self.segment_array[segment].width/2) - ((canvas_context.measureText(self.segment_array[segment].letter).width)/2)))) &&
+                (mouse_pos.y > (self.segment_array[segment].ypos + ((self.segment_array[segment].height/2) - (20/2)))) &&
+                (mouse_pos.x < ((self.segment_array[segment].xpos + (self.segment_array[segment].width/2) + ((canvas_context.measureText(self.segment_array[segment].letter).width)/2)))) &&
+                (mouse_pos.y < ((self.segment_array[segment].ypos + (self.segment_array[segment].height/2) + 10))))
+                {
+                    self.segment_array[segment].is_hovered = true;
+                    hover_segment = self.segment_array[segment];
+                    if(is_mousedown_true == true && self.segment_array[segment] != lastanchor)
+                    {
+                        var a_point = {};
+                        var current_line = (self.lines_array.length - 1);
+                        var current_line_last_point = (self.lines_array[current_line].line_points.length - 1);
+                        a_point.x = (self.segment_array[segment].xpos + (self.segment_array[segment].width/2));
+                        a_point.y = (self.segment_array[segment].ypos + (self.segment_array[segment].height/2));
+                        a_point.index = self.segment_array[segment].index;
+                        self.lines_array[current_line].line_points.splice(current_line_last_point, 0, a_point);
+                        lastanchor = self.segment_array[segment];
+                    }
+                    return;
+                }
+                else
+                {
+                    self.segment_array[segment].is_hovered = false;
+                }
+            }
+            if(is_mousedown_true == true)
+            {
+                var current_line = (self.lines_array.length - 1);
+                var current_line_last_point = (self.lines_array[current_line].line_points.length - 1);
+                var mouse = {};
+                mouse.x = mouse_pos.x;
+                mouse.y = mouse_pos.y;
+                self.lines_array[current_line].line_points.splice(current_line_last_point, 1, mouse);
+                
+            }
+        },false);
+        canvas.addEventListener('mousedown', function(evt)
+        {
+            is_mousedown_true = true;
+            var line = {};
+            line.line_points = [];
+            var point = mouse_pos;
+            if(hover_segment != "")
+            {
+                point.x = (hover_segment.xpos + (hover_segment.width/2));
+                point.y = (hover_segment.ypos + (hover_segment.height/2));
+                point.i = hover_segment.index;
+            }
+            line.line_points.push(point);
+            self.lines_array.push(line);
+        },false);
+        canvas.addEventListener('mouseup', function(evt)
+        {
+            if(is_mousedown_true == true)
+            {
+                is_mousedown_true = false;
+                lastanchor = "";
+                self.checkLine(self.lines_array, self.word_locations, self.found_words);
+            };
+        },false);
+        canvas.addEventListener('mouseout', function(evt)
+        {
+            if(is_mousedown_true == true)
+            {
+                is_mousedown_true = false;
+                lastanchor = "";
+                self.checkLine(self.lines_array, self.word_locations, self.found_words);
+            };
+        },false);
+    },
+    
+    checkLine: function(grid_lines_array, locc, found_words)
+    {
+        var current_line = (grid_lines_array.length - 1);
+        var current_line_last_point = (grid_lines_array[current_line].line_points.length - 1);
+        var current_line_last_anchor_point = (grid_lines_array[current_line].line_points.length - 2);
+        grid_lines_array[current_line].line_points.splice(current_line_last_point, 1);
+        
+        //---check line
+        var keep_line = false;
+        if(grid_lines_array[current_line].line_points.length == 0)
+        {
+            grid_lines_array.splice(current_line, 1);
+        }
+        else
+        {
+            for(var current_word = 0; current_word < locc.length; current_word++)
+            {
+                var current_word_last_letter = locc[current_word].length - 1;
+                if(((grid_lines_array[current_line].line_points[0].index == locc[current_word][0]) && (grid_lines_array[current_line].line_points[current_line_last_anchor_point].index == locc[current_word][current_word_last_letter])) || ((grid_lines_array[current_line].line_points[0].index == locc[current_word][current_word_last_letter]) && (grid_lines_array[current_line].line_points[current_line_last_anchor_point].index == locc[current_word][0])))
+                {
+                    keep_line = true;
+                    for(var i = 0; i < grid_lines_array[current_line].line_points.length; i++)
+                    {
+                        keep_line = locc[current_word].some(function(letter_index)
+                        {
+                            return letter_index == grid_lines_array[current_line].line_points[i].index;
+                        });
+                        if(keep_line == true)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            grid_lines_array.splice(current_line, 1);
+                            return;
+                        }
+                        
+                    }
+                    var w = found_words.some(function(nnn)
+                    {
+                        return nnn == current_word;
+                    });
+                    console.log(w);
+                    
+                    if(w == true)
+                    {
+                        grid_lines_array.splice(current_line, 1);
+                        return;
+                    }
+                    else
+                    {
+                        found_words.push(current_word);
+                    }
+                }
+                
+            }
+            if(keep_line == false)
+            {
+                grid_lines_array.splice(current_line, 1);
+                return;
+            }
+        }
+    },
+    
     renderGrid: function()
     {
         canvas_context.fillStyle = "white";
@@ -319,19 +375,17 @@ app.Game_Grid_Object = {
         canvas_context.textBaseline = "middle"; 
         for(var segment = 0; segment < this.segment_array.length; segment++)
         {
-            //...render all the letters
-            if(this.segment_array[segment].letter == "")
-            {
-                this.segment_array[segment].letter = this.generateRandomLetter();
-            }            
+            //render all the letters
             if(this.segment_array[segment].is_hovered == true)
             {
-                canvas_context.font="40px Georgia";
+                var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.55);
+                canvas_context.font = afont + "px Georgia";
                 canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
             }
             else if(this.segment_array[segment].is_hovered == false)
             {
-                canvas_context.font="20px Georgia";
+                var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.3);
+                canvas_context.font = afont + "px Georgia";
                 canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
             }
             canvas_context.strokeStyle = "black";
@@ -356,10 +410,21 @@ app.Game_Grid_Object = {
         }
     },
     
+    checkIfWon: function()
+    {
+        if(this.found_words.length == this.word_bank.length)
+        {
+            canvas_context.fillStyle = "gold";
+            canvas_context.font="40px Georgia bold";
+            canvas_context.fillText("YOU WON!!! OMGOMG!!", canvas.width/2, canvas.height/2);
+        }
+    },
+    
     update: function()
     {
         this.animationID = requestAnimationFrame(this.update.bind(this));
         this.renderGrid();
         this.renderLines();
+        this.checkIfWon();
     }
 };

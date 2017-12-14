@@ -3,10 +3,6 @@ var app = app||{};
 var canvas;
 var canvas_context;
 
-var my_word_bank = ["DAIRY", "COW", "MEAT", "CHICKEN", "MILKSHAKE", "BURGER"];
-
-
-
 // returns mouse position in local coordinate system of element
 function getMouse(canvas, evt)
 {
@@ -22,5 +18,5 @@ window.onload = function()
     canvas = document.querySelector('#canvas');
     canvas_context = canvas.getContext('2d');
     
-    app.Game_Grid_Object.init(canvas_context, 20, my_word_bank);
+    app.Title_Screen.renderTitleScreen();
 }

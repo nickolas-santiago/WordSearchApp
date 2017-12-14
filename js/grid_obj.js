@@ -7,17 +7,15 @@ app.Game_Grid_Object = {
     segment_array: [],
     lines_array: [],
     word_bank: [],
-    //word_bank: ["DAIRY", "MEAT", "COW"],
     word_locations: [],
     found_words: [],
     
     //---METHODS---//
     init: function(canvas_context, total_number_of_segments, word_bank)
     {
-        this.total_number_of_segments = 144;
-        //this.total_number_of_segments = (total_number_of_segments * total_number_of_segments);
+        this.total_number_of_segments = (total_number_of_segments * total_number_of_segments);
         this.word_bank = word_bank;
-        
+        this.found_words.splice(0, this.found_words.length);
         this.createGrid();
         
         //---render everything
@@ -26,9 +24,28 @@ app.Game_Grid_Object = {
     
     createGrid: function()
     {
+        
+        this.segment_array.splice(0, this.segment_array.length);
+        this.word_locations.splice(0, this.word_locations.length);
+        this.lines_array.splice(0, this.lines_array.length);
+       
         this.initSegments();
         this.initGrid();
-        this.initEventListeners();
+        
+        for(var found_word = 0; found_word < this.found_words.length; found_word++)
+        {
+            var found_word_line = {};
+            found_word_line.line_points = [];
+            for(var pp = 0; pp < this.word_locations[this.found_words[found_word]].length; pp++)
+            {
+                var a_point = {};
+                a_point.index = this.word_locations[this.found_words[found_word]][pp];
+                a_point.x = (this.segment_array[a_point.index].xpos + (this.segment_array[a_point.index].width/2));
+                a_point.y = (this.segment_array[a_point.index].ypos + (this.segment_array[a_point.index].height/2));
+                found_word_line.line_points.push(a_point);
+            }
+            this.lines_array.push(found_word_line);
+        }
     },
     
     initSegments: function()
@@ -289,6 +306,8 @@ app.Game_Grid_Object = {
                 lastanchor = "";
                 self.checkLine(self.lines_array, self.word_locations, self.found_words);
             };
+            console.log(self.lines_array);
+            
         },false);
         canvas.addEventListener('mouseout', function(evt)
         {
@@ -298,6 +317,9 @@ app.Game_Grid_Object = {
                 lastanchor = "";
                 self.checkLine(self.lines_array, self.word_locations, self.found_words);
             };
+            
+            self.createGrid();
+            
         },false);
     },
     
@@ -343,8 +365,6 @@ app.Game_Grid_Object = {
                     {
                         return nnn == current_word;
                     });
-                    console.log(w);
-                    
                     if(w == true)
                     {
                         grid_lines_array.splice(current_line, 1);
@@ -414,9 +434,10 @@ app.Game_Grid_Object = {
     {
         if(this.found_words.length == this.word_bank.length)
         {
-            canvas_context.fillStyle = "gold";
+            /*canvas_context.fillStyle = "gold";
             canvas_context.font="40px Georgia bold";
-            canvas_context.fillText("YOU WON!!! OMGOMG!!", canvas.width/2, canvas.height/2);
+            canvas_context.fillText("YOU WON!!! OMGOMG!!", canvas.width/2, canvas.height/2);*/
+            app.Title_Screen.renderLevelTransitionScreen();
         }
     },
     

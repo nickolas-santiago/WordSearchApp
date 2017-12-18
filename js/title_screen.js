@@ -18,6 +18,7 @@ app.Title_Screen = {
             document.querySelector("#directionsbutton").style.display = "none";
             app.Game_Grid_Object.initEventListeners();
             app.Game_Object.init();
+            app.Game_Object.current_game_time = 10;
         }
         document.querySelector("#directionsbutton").onclick = function()
         {
@@ -62,6 +63,17 @@ app.Title_Screen = {
             app.Game_Object.current_level += 1;
             app.Game_Object.loadLevel(app.Game_Object.current_level);
         }
-    }
+    },
     
+    renderLoseScreen: function()
+    {
+       canvas_context.fillStyle = "green";
+        canvas_context.fillRect(0, 0, canvas.width, canvas.height);
+        
+        canvas_context.fillStyle = "black";
+        canvas_context.font="40px Georgia bold";
+        canvas_context.fillText("Ready?", canvas.width/2, canvas.height/2);
+         
+         console.log("you looosse");
+    }
 };

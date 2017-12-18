@@ -17,14 +17,10 @@ app.Game_Grid_Object = {
         this.word_bank = word_bank;
         this.found_words.splice(0, this.found_words.length);
         this.createGrid();
-        
-        //---render everything
-        this.update();
     },
     
     createGrid: function()
     {
-        
         this.segment_array.splice(0, this.segment_array.length);
         this.word_locations.splice(0, this.word_locations.length);
         this.lines_array.splice(0, this.lines_array.length);
@@ -437,7 +433,9 @@ app.Game_Grid_Object = {
             /*canvas_context.fillStyle = "gold";
             canvas_context.font="40px Georgia bold";
             canvas_context.fillText("YOU WON!!! OMGOMG!!", canvas.width/2, canvas.height/2);*/
+            cancelAnimationFrame(this.animationID);
             app.Title_Screen.renderLevelTransitionScreen();
+            clearInterval(app.Game_Object.game_timer);
         }
     },
     

@@ -8,6 +8,8 @@ app.Game_Object = {
     num_of_levels: 3,
     levels: [],
     current_level: undefined,
+    current_game_time: undefined,
+    game_timer: undefined,
     
     init: function()
     {
@@ -69,6 +71,35 @@ app.Game_Object = {
     
     loadLevel: function(current_level)
     {
+        var self = this;
         app.Game_Grid_Object.init(canvas_context, this.levels[current_level].num_of_segments_sqrd, this.levels[current_level].level_word_bank);
+        this.game_timer = setInterval(function()
+        {
+            self.current_game_time -= 1;
+            var max_chance_to_change = 0.45;
+            var chance_to_change = Math.random();
+            if(self.current_level == (self.num_of_levels - 1))
+            {
+                if(self.current_game_time < 10)
+                {
+                    chance_to_change += 0.5;
+                }
+                if(app.Game_Grid_Object.found_words.length > (self.levels[self.current_level].num_of_words * 0.65))
+                {
+                    chance_to_change += 0.5;
+                }
+            }
+            if(chance_to_change < (max_chance_to_change/self.num_of_levels))
+            {
+                app.Game_Grid_Object.createGrid();
+            }
+            if(self.current_game_time == 0)
+            {
+                cancelAnimationFrame(app.Game_Grid_Object.animationID);
+                app.Title_Screen.renderLoseScreen();
+                clearInterval(self.game_timer);
+            }
+        }, 1000);
+        app.Game_Grid_Object.update();
     }
 };

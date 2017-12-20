@@ -1,7 +1,7 @@
 "use strict";
 var app = app||{};
 
-app.Title_Screen = {
+app.Game_Screens = {
     renderTitleScreen: function()
     {
         canvas_context.fillStyle = "red";

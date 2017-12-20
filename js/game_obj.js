@@ -3,6 +3,13 @@ var app = app||{};
 
 app.Game_Object = {
     //---PROPERTIES---//
+    game_states: {
+        TITLE_SCREEN: 0,
+        PLAYING: 1,
+        TRANSITION_SCREEN: 2,
+        END: 3
+    },
+    current_game_state: undefined,
     word_bank: ["DAIRY", "COW", "MEAT", "CHICKEN", "MILK", "SHAKE", "BURGER", "CREAMLINE", "LOCAL", "NEWYORK",
                    "CHELSEA", "MARKET", "BEEF", "EGGNOG", "STRAWBERRY", "VANILLA", "FUDGE", "SOUP", "RAW", "GRILL"],
     num_of_levels: 3,
@@ -73,10 +80,11 @@ app.Game_Object = {
     {
         var self = this;
         app.Game_Grid_Object.init(canvas_context, this.levels[current_level].num_of_segments_sqrd, this.levels[current_level].level_word_bank);
+        this.current_game_state = this.game_states.PLAYING;
         this.game_timer = setInterval(function()
         {
             self.current_game_time -= 1;
-            var max_chance_to_change = 0.45;
+            var max_chance_to_change = 0.3;
             var chance_to_change = Math.random();
             if(self.current_level == (self.num_of_levels - 1))
             {
@@ -89,14 +97,15 @@ app.Game_Object = {
                     chance_to_change += 0.5;
                 }
             }
-            if(chance_to_change < (max_chance_to_change/self.num_of_levels))
+            if(chance_to_change < (max_chance_to_change * ((self.current_level + 1)/self.num_of_levels)))
             {
                 app.Game_Grid_Object.createGrid();
             }
             if(self.current_game_time == 0)
             {
                 cancelAnimationFrame(app.Game_Grid_Object.animationID);
-                app.Title_Screen.renderLoseScreen();
+                self.current_game_state = self.game_states.END;
+                app.Game_Screens.renderLoseScreen();
                 clearInterval(self.game_timer);
             }
         }, 1000);

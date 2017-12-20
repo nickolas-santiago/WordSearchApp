@@ -18,5 +18,6 @@ window.onload = function()
     canvas = document.querySelector('#canvas');
     canvas_context = canvas.getContext('2d');
     
-    app.Title_Screen.renderTitleScreen();
+    app.Game_Screens.renderTitleScreen();
+    app.Game_Object.current_game_state =  app.Game_Object.game_states.TITLE_SCREEN;
 }

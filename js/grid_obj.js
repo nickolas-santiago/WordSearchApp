@@ -9,6 +9,7 @@ app.Game_Grid_Object = {
     word_bank: [],
     word_locations: [],
     found_words: [],
+    dragging: false,
     
     //---METHODS---//
     init: function(canvas_context, total_number_of_segments, word_bank)
@@ -27,6 +28,10 @@ app.Game_Grid_Object = {
        
         this.initSegments();
         this.initGrid();
+        if(this.dragging == true)
+        {
+            this.dragging = false;
+        }
         
         for(var found_word = 0; found_word < this.found_words.length; found_word++)
         {
@@ -232,7 +237,6 @@ app.Game_Grid_Object = {
         var self = this;
         //---references for event listeners
         var mouse_pos;
-        var is_mousedown_true = false;
         var is_hovering = false;
         var hover_segment;
         var lastanchor = "";
@@ -240,82 +244,89 @@ app.Game_Grid_Object = {
         //---event listeners
         canvas.addEventListener('mousemove', function(evt)
         {
-            mouse_pos = getMouse(canvas, evt);
-            for(var segment = 0; segment < self.segment_array.length; segment++)
+            if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
-                if((mouse_pos.x > (self.segment_array[segment].xpos + ((self.segment_array[segment].width/2) - ((canvas_context.measureText(self.segment_array[segment].letter).width)/2)))) &&
-                (mouse_pos.y > (self.segment_array[segment].ypos + ((self.segment_array[segment].height/2) - (20/2)))) &&
-                (mouse_pos.x < ((self.segment_array[segment].xpos + (self.segment_array[segment].width/2) + ((canvas_context.measureText(self.segment_array[segment].letter).width)/2)))) &&
-                (mouse_pos.y < ((self.segment_array[segment].ypos + (self.segment_array[segment].height/2) + 10))))
+                mouse_pos = getMouse(canvas, evt);
+                for(var segment = 0; segment < self.segment_array.length; segment++)
                 {
-                    self.segment_array[segment].is_hovered = true;
-                    hover_segment = self.segment_array[segment];
-                    if(is_mousedown_true == true && self.segment_array[segment] != lastanchor)
+                    if((mouse_pos.x > (self.segment_array[segment].xpos + ((self.segment_array[segment].width/2) - ((canvas_context.measureText(self.segment_array[segment].letter).width)/2)))) &&
+                    (mouse_pos.y > (self.segment_array[segment].ypos + ((self.segment_array[segment].height/2) - (20/2)))) &&
+                    (mouse_pos.x < ((self.segment_array[segment].xpos + (self.segment_array[segment].width/2) + ((canvas_context.measureText(self.segment_array[segment].letter).width)/2)))) &&
+                    (mouse_pos.y < ((self.segment_array[segment].ypos + (self.segment_array[segment].height/2) + 10))))
                     {
-                        var a_point = {};
-                        var current_line = (self.lines_array.length - 1);
-                        var current_line_last_point = (self.lines_array[current_line].line_points.length - 1);
-                        a_point.x = (self.segment_array[segment].xpos + (self.segment_array[segment].width/2));
-                        a_point.y = (self.segment_array[segment].ypos + (self.segment_array[segment].height/2));
-                        a_point.index = self.segment_array[segment].index;
-                        self.lines_array[current_line].line_points.splice(current_line_last_point, 0, a_point);
-                        lastanchor = self.segment_array[segment];
+                        self.segment_array[segment].is_hovered = true;
+                        hover_segment = self.segment_array[segment];
+                        if(self.dragging == true && self.segment_array[segment] != lastanchor)
+                        {
+                            var a_point = {};
+                            var current_line = (self.lines_array.length - 1);
+                            var current_line_last_point = (self.lines_array[current_line].line_points.length - 1);
+                            a_point.x = (self.segment_array[segment].xpos + (self.segment_array[segment].width/2));
+                            a_point.y = (self.segment_array[segment].ypos + (self.segment_array[segment].height/2));
+                            a_point.index = self.segment_array[segment].index;
+                            self.lines_array[current_line].line_points.splice(current_line_last_point, 0, a_point);
+                            lastanchor = self.segment_array[segment];
+                        }
+                        return;
                     }
-                    return;
+                    else
+                    {
+                        self.segment_array[segment].is_hovered = false;
+                    }
                 }
-                else
+                if(self.dragging == true)
                 {
-                    self.segment_array[segment].is_hovered = false;
+                    var current_line = (self.lines_array.length - 1);
+                    var current_line_last_point = (self.lines_array[current_line].line_points.length - 1);
+                    var mouse = {};
+                    mouse.x = mouse_pos.x;
+                    mouse.y = mouse_pos.y;
+                    self.lines_array[current_line].line_points.splice(current_line_last_point, 1, mouse);
                 }
-            }
-            if(is_mousedown_true == true)
-            {
-                var current_line = (self.lines_array.length - 1);
-                var current_line_last_point = (self.lines_array[current_line].line_points.length - 1);
-                var mouse = {};
-                mouse.x = mouse_pos.x;
-                mouse.y = mouse_pos.y;
-                self.lines_array[current_line].line_points.splice(current_line_last_point, 1, mouse);
-                
             }
         },false);
         canvas.addEventListener('mousedown', function(evt)
         {
-            is_mousedown_true = true;
-            var line = {};
-            line.line_points = [];
-            var point = mouse_pos;
-            if(hover_segment != "")
+            if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
-                point.x = (hover_segment.xpos + (hover_segment.width/2));
-                point.y = (hover_segment.ypos + (hover_segment.height/2));
-                point.i = hover_segment.index;
+                self.dragging = true;
+                var line = {};
+                line.line_points = [];
+                var point = mouse_pos;
+                if(hover_segment != "")
+                {
+                    point.x = (hover_segment.xpos + (hover_segment.width/2));
+                    point.y = (hover_segment.ypos + (hover_segment.height/2));
+                    point.i = hover_segment.index;
+                }
+                line.line_points.push(point);
+                self.lines_array.push(line);
             }
-            line.line_points.push(point);
-            self.lines_array.push(line);
         },false);
         canvas.addEventListener('mouseup', function(evt)
         {
-            if(is_mousedown_true == true)
+            if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
-                is_mousedown_true = false;
-                lastanchor = "";
-                self.checkLine(self.lines_array, self.word_locations, self.found_words);
-            };
-            console.log(self.lines_array);
-            
+                if(self.dragging == true)
+                {
+                    self.dragging = false;
+                    lastanchor = "";
+                    self.checkLine(self.lines_array, self.word_locations, self.found_words);
+                };
+                console.log(self.lines_array);
+            }
         },false);
         canvas.addEventListener('mouseout', function(evt)
         {
-            if(is_mousedown_true == true)
+            if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
-                is_mousedown_true = false;
-                lastanchor = "";
-                self.checkLine(self.lines_array, self.word_locations, self.found_words);
-            };
-            
-            self.createGrid();
-            
+                if(self.dragging == true)
+                {
+                    self.dragging = false;
+                    lastanchor = "";
+                    self.checkLine(self.lines_array, self.word_locations, self.found_words);
+                };
+            }
         },false);
     },
     
@@ -355,7 +366,6 @@ app.Game_Grid_Object = {
                             grid_lines_array.splice(current_line, 1);
                             return;
                         }
-                        
                     }
                     var w = found_words.some(function(nnn)
                     {
@@ -371,7 +381,6 @@ app.Game_Grid_Object = {
                         found_words.push(current_word);
                     }
                 }
-                
             }
             if(keep_line == false)
             {
@@ -430,11 +439,9 @@ app.Game_Grid_Object = {
     {
         if(this.found_words.length == this.word_bank.length)
         {
-            /*canvas_context.fillStyle = "gold";
-            canvas_context.font="40px Georgia bold";
-            canvas_context.fillText("YOU WON!!! OMGOMG!!", canvas.width/2, canvas.height/2);*/
             cancelAnimationFrame(this.animationID);
-            app.Title_Screen.renderLevelTransitionScreen();
+            app.Game_Object.current_game_state =  app.Game_Object.game_states.TRANSITION_SCREEN;
+            app.Game_Screens.renderLevelTransitionScreen();
             clearInterval(app.Game_Object.game_timer);
         }
     },

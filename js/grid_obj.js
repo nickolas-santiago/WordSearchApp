@@ -313,7 +313,6 @@ app.Game_Grid_Object = {
                     lastanchor = "";
                     self.checkLine(self.lines_array, self.word_locations, self.found_words);
                 };
-                console.log(self.lines_array);
             }
         },false);
         canvas.addEventListener('mouseout', function(evt)
@@ -379,6 +378,9 @@ app.Game_Grid_Object = {
                     else
                     {
                         found_words.push(current_word);
+                        $("#level_word_flip_card_" + current_word).find(".front").html("<p class='level_word_found'>" + this.word_bank[current_word] + "</p>");
+                        $("#level_word_flip_card_" + current_word).height($("#level_word_flip_card_" + current_word).css('fontSize'));
+                        $("#level_word_flip_card_" + current_word).flip('toggle');
                     }
                 }
             }
@@ -392,9 +394,6 @@ app.Game_Grid_Object = {
     
     renderGrid: function()
     {
-        canvas_context.fillStyle = "white";
-        canvas_context.fillRect(0, 0, canvas.width, canvas.height);
-        
         canvas_context.fillStyle = "black";
         canvas_context.textAlign = "center"; 
         canvas_context.textBaseline = "middle"; 
@@ -413,8 +412,6 @@ app.Game_Grid_Object = {
                 canvas_context.font = afont + "px Georgia";
                 canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
             }
-            canvas_context.strokeStyle = "black";
-            canvas_context.strokeRect(this.segment_array[segment].xpos, this.segment_array[segment].ypos, this.segment_array[segment].width, this.segment_array[segment].height);
         }
     },
     
@@ -422,16 +419,22 @@ app.Game_Grid_Object = {
     {
         for(var line = 0; line < this.lines_array.length; line++)
         {
-            canvas_context.beginPath();
-            canvas_context.moveTo(this.lines_array[line].line_points[0].x, this.lines_array[line].line_points[0].y);
-            if(this.lines_array[line].line_points.length > 1)
-            {
-                for(var line_point = 1; line_point < this.lines_array[line].line_points.length; line_point++)
+            canvas_context.save();
+                canvas_context.strokeStyle = "red";
+                canvas_context.lineWidth = 5;
+                canvas_context.lineCap = "round";
+                
+                canvas_context.beginPath();
+                canvas_context.moveTo(this.lines_array[line].line_points[0].x, this.lines_array[line].line_points[0].y);
+                if(this.lines_array[line].line_points.length > 1)
                 {
-                    canvas_context.lineTo(this.lines_array[line].line_points[line_point].x, this.lines_array[line].line_points[line_point].y);
+                    for(var line_point = 1; line_point < this.lines_array[line].line_points.length; line_point++)
+                    {
+                        canvas_context.lineTo(this.lines_array[line].line_points[line_point].x, this.lines_array[line].line_points[line_point].y);
+                    }
                 }
-            }
-            canvas_context.stroke();
+                canvas_context.stroke();
+            canvas_context.restore();
         }
     },
     
@@ -440,17 +443,45 @@ app.Game_Grid_Object = {
         if(this.found_words.length == this.word_bank.length)
         {
             cancelAnimationFrame(this.animationID);
-            app.Game_Object.current_game_state =  app.Game_Object.game_states.TRANSITION_SCREEN;
-            app.Game_Screens.renderLevelTransitionScreen();
             clearInterval(app.Game_Object.game_timer);
+            $(".level_word_flip_card").each(function()
+            {
+                if($(this).data("flip-model").isFlipped == true)
+                {
+                    $(this).find(".front").html("");
+                    $(this).flip('toggle');
+                }
+                else
+                {
+                    $(this).find(".back").html("");
+                    $(this).flip('toggle', function()
+                    {
+                        $("#words_container").html("");
+                    });
+                }
+            });
+            this.segment_array.splice(0, this.segment_array.length);
+            this.word_locations.splice(0, this.word_locations.length);
+            this.lines_array.splice(0, this.lines_array.length);
+            if(app.Game_Object.current_level == (app.Game_Object.num_of_levels - 1))
+            {
+                app.Game_Screens.renderWinScreen();
+            }
+            else
+            {
+                app.Game_Object.current_level += 1;
+                app.Game_Screens.renderTransitionScreen_Ready();
+            }
         }
     },
     
     update: function()
     {
         this.animationID = requestAnimationFrame(this.update.bind(this));
-        this.renderGrid();
+        canvas_context.fillStyle = "white";
+        canvas_context.fillRect(0, 0, canvas.width, canvas.height);
         this.renderLines();
+        this.renderGrid();
         this.checkIfWon();
     }
 };

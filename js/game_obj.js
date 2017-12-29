@@ -11,7 +11,7 @@ app.Game_Object = {
     },
     current_game_state: undefined,
     word_bank: ["DAIRY", "COW", "MEAT", "CHICKEN", "MILK", "SHAKE", "BURGER", "CREAMLINE", "LOCAL", "NEWYORK",
-                   "CHELSEA", "MARKET", "BEEF", "EGGNOG", "STRAWBERRY", "VANILLA", "FUDGE", "SOUP", "RAW", "GRILL"],
+                   "CHELSEA", "MARKET", "BEEF", "EGGNOG", "FARM", "VANILLA", "FUDGE", "SOUP", "RAW", "GRILL"],
     num_of_levels: 3,
     levels: [],
     current_level: undefined,
@@ -22,7 +22,6 @@ app.Game_Object = {
     {
         this.initLevels();
         this.current_level = 0;
-        this.loadLevel(this.current_level);
     },
     
     initLevels: function()
@@ -84,7 +83,8 @@ app.Game_Object = {
         this.game_timer = setInterval(function()
         {
             self.current_game_time -= 1;
-            var max_chance_to_change = 0.3;
+            $("#game_clock").html(self.current_game_time);
+            var max_chance_to_change = 0.05;
             var chance_to_change = Math.random();
             if(self.current_level == (self.num_of_levels - 1))
             {
@@ -104,11 +104,80 @@ app.Game_Object = {
             if(self.current_game_time == 0)
             {
                 cancelAnimationFrame(app.Game_Grid_Object.animationID);
-                self.current_game_state = self.game_states.END;
                 app.Game_Screens.renderLoseScreen();
+                $(".level_word_flip_card").each(function()
+                {
+                    if($(this).data("flip-model").isFlipped == true)
+                    {
+                        $(this).find(".front").html("");
+                        $(this).flip('toggle');
+                    }
+                    else
+                    {
+                        $(this).find(".back").html("");
+                        $(this).flip('toggle', function()
+                        {
+                            $("#words_container").html("");
+                        });
+                    }
+                });
                 clearInterval(self.game_timer);
             }
         }, 1000);
         app.Game_Grid_Object.update();
+    },
+    
+    renderLevelWords: function()
+    {
+        var self = this;
+        var word_container_html = "";
+        var max_words_per_row = 3;
+        var num_of_rows = Math.ceil(this.levels[this.current_level].level_word_bank.length/max_words_per_row);
+        var current_word_flip_card = 0;
+        
+        for(var current_row = 0; current_row < num_of_rows; current_row++)
+        {
+            for(var current_word_row_index = 0; current_word_row_index < max_words_per_row; current_word_row_index++)
+            {
+                var current_word = ((current_row * max_words_per_row) + current_word_row_index);
+                if(current_word > (this.levels[this.current_level].level_word_bank.length - 1))
+                {
+                    continue;
+                }
+                var current_word_html = "";
+                current_word_html += "<div class='level_word_flip_card' id='level_word_flip_card_" + current_word + "'>";
+                current_word_html += "<div class='front'></div>";
+                current_word_html += "<div class='back'>";
+                current_word_html += "<p class='level_word' id='level_word_" + current_word + "'>" + this.levels[this.current_level].level_word_bank[current_word] + "</p>";
+                current_word_html += "</div></div>";
+                word_container_html  += current_word_html;
+            }
+        }
+        $("#words_container").html(word_container_html);
+        
+        $(".level_word_flip_card").each(function(index)
+        {
+            $(this).flip({trigger: "manual", axis: "x", speed: 450});
+            $(this).height($(this).css('fontSize'));
+            $(this).width(canvas.width/max_words_per_row);
+            $(this).css({position: "absolute", top: (Math.floor(index/max_words_per_row)) * 20, left: ((canvas.width * (index%max_words_per_row))/max_words_per_row)});
+        });
+        
+        var flip_level_word_cards_timer_interval = setInterval(function()
+        {
+            if(current_word_flip_card >= (self.levels[self.current_level].level_word_bank.length - 1))
+            {
+                $("#level_word_flip_card_" + current_word_flip_card).flip('toggle', function()
+                {
+                    app.Game_Screens.renderTransitionScreen_Go();
+                });
+                clearInterval(flip_level_word_cards_timer_interval);
+            }
+            else
+            {
+                $("#level_word_flip_card_" + current_word_flip_card).flip('toggle');
+                current_word_flip_card += 1;
+            }
+        }, 450);
     }
 };

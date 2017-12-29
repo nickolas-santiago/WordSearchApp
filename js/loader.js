@@ -1,7 +1,5 @@
 "use strict";
 var app = app||{};
-var canvas;
-var canvas_context;
 
 // returns mouse position in local coordinate system of element
 function getMouse(canvas, evt)
@@ -11,13 +9,4 @@ function getMouse(canvas, evt)
         x: evt.clientX - canvas_bounding_box.left,
         y: evt.clientY - canvas_bounding_box.top
     };
-}
-
-window.onload = function()
-{
-    canvas = document.querySelector('#canvas');
-    canvas_context = canvas.getContext('2d');
-    
-    app.Game_Screens.renderTitleScreen();
-    app.Game_Object.current_game_state =  app.Game_Object.game_states.TITLE_SCREEN;
 }

@@ -2,38 +2,134 @@
 <html>
 <head>
     <title>Hello world</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/nnattawat/flip/master/dist/jquery.flip.min.js"></script>
+
     <script src="js/game_obj.js"></script>
     <script src="js/game_screens.js"></script>
     <script src="js/grid_obj.js"></script>
     <script src="js/loader.js"></script>
     <script type="text/jsx" src="js/app.js"></script>
     <style>
-        img
+    
+
+        body
+        {
+            font-family: 'Montserrat';
+        }
+        
+        
+        #title_image, #directions_header_image, #ready_screen_image, #go_screen_image, #game_lost_image,
+        #game_won_image, button
         {
             display: none;
         }
         button, canvas
         {
             position: absolute;
+        }
+        canvas
+        {
+        
+            z-index: 0;
+            border: black 3px solid;            
+        }
+        button
+        {
             z-index: 1;        
+            border: none;
+            font-weight: bold;
+            background: none;
+        }
+        button:hover
+        {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        button:active, button:focus, button.active
+        {
+            background-image: none;
+            outline: 0;
+            -webkit-box-shadow: none;
+             box-shadow: none;
+        }
+        
+        #app_header
+        {
+            width: 500px;
+            height: 100px;
+        }
+        
+        
+        #container
+        {
+            position: relative;
+            height: 540px;
+        }
+        $testdiv
+        {
+            position: relative;
+        }
+        
+        #words_container
+        {
+            position: relative;
+        }
+        .level_word, .level_word_found, .back, .front
+        {
+            margin: 0;
+        }
+        .level_word_found
+        {
+            text-decoration: line-through;
+        }
+        .level_word_flip_card
+        {
+            text-align: center;
+        }
+        
+        
+        #game_timer_flip_card
+        {
+            position: relative;
+        }
+        
+        #words_container_header
+        {
+            text-align: center;
+        }
+        
+        
+        #words_container_component, #game_timer_flip_card
+        {
+            margin-left: 3px;
+        }
+        
+        #game_timer_flip_card
+        {
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <div id="testdiv">
+    <div id="header_component">
     </div>
-    <img src="images/creamlinelogo.png" id="title_image" />
-    <canvas id="canvas" width="540" height="540">
-        This app uses the HTML canvas tag. To enjoy the full experience, please use a broswer that supports
-        the HTML canvas tag.
-	</canvas>
-    <button id="playbutton" class="title_screen_button">PLAY</button>
-    <button id="directionsbutton" class="title_screen_button">DIRECTIONS</button>
-    <button id="backbutton">BACK</button>
-    <p id="current_time"></p>
+    <!---
+    <div id="container">
+        <img src="images/creamlinelogo.png" id="title_image" />
+        <canvas id="canvas" width="540" height="540">
+            This app uses the HTML canvas tag. To enjoy the full experience, please use a broswer that supports
+            the HTML canvas tag.
+        </canvas>
+        <button id="playbutton" class="title_screen_button">PLAY</button>
+        <button id="directionsbutton" class="title_screen_button">DIRECTIONS</button>
+        <button id="backbutton">BACK</button>
+        <p id="current_time"></p>
+    </div>--->
+    <div id="testdiv"></div>
 </body>
 </html>

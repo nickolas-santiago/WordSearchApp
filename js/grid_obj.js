@@ -45,6 +45,7 @@ app.Game_Grid_Object = {
                 a_point.y = (this.segment_array[a_point.index].ypos + (this.segment_array[a_point.index].height/2));
                 found_word_line.line_points.push(a_point);
             }
+            found_word_line.opacity = 1;
             this.lines_array.push(found_word_line);
         }
     },
@@ -287,6 +288,7 @@ app.Game_Grid_Object = {
         },false);
         canvas.addEventListener('mousedown', function(evt)
         {
+            //---mousedown is the event that starts to create the line.
             if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
                 self.dragging = true;
@@ -300,11 +302,13 @@ app.Game_Grid_Object = {
                     point.i = hover_segment.index;
                 }
                 line.line_points.push(point);
+                line.opacity = 1;
                 self.lines_array.push(line);
             }
         },false);
         canvas.addEventListener('mouseup', function(evt)
         {
+            //---mouseup is the event that ends the line, and begins the function that checks if the line stays
             if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
                 if(self.dragging == true)
@@ -317,6 +321,7 @@ app.Game_Grid_Object = {
         },false);
         canvas.addEventListener('mouseout', function(evt)
         {
+            //---leaving the game grid also ends the line and begins the function that checks if the line stays
             if(app.Game_Object.current_game_state == app.Game_Object.game_states.PLAYING)
             {
                 if(self.dragging == true)
@@ -362,7 +367,7 @@ app.Game_Grid_Object = {
                         }
                         else
                         {
-                            grid_lines_array.splice(current_line, 1);
+                            this.fadeLines(grid_lines_array, current_line);
                             return;
                         }
                     }
@@ -372,7 +377,7 @@ app.Game_Grid_Object = {
                     });
                     if(w == true)
                     {
-                        grid_lines_array.splice(current_line, 1);
+                        this.fadeLines(grid_lines_array, current_line);
                         return;
                     }
                     else
@@ -386,7 +391,7 @@ app.Game_Grid_Object = {
             }
             if(keep_line == false)
             {
-                grid_lines_array.splice(current_line, 1);
+                this.fadeLines(grid_lines_array, current_line);
                 return;
             }
         }
@@ -394,25 +399,27 @@ app.Game_Grid_Object = {
     
     renderGrid: function()
     {
-        canvas_context.fillStyle = "black";
-        canvas_context.textAlign = "center"; 
-        canvas_context.textBaseline = "middle"; 
-        for(var segment = 0; segment < this.segment_array.length; segment++)
-        {
-            //render all the letters
-            if(this.segment_array[segment].is_hovered == true)
+        canvas_context.save();
+            canvas_context.fillStyle = "black";
+            canvas_context.textAlign = "center"; 
+            canvas_context.textBaseline = "middle"; 
+            for(var segment = 0; segment < this.segment_array.length; segment++)
             {
-                var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.55);
-                canvas_context.font = afont + "px Georgia";
-                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
+                //render all the letters
+                if(this.segment_array[segment].is_hovered == true)
+                {
+                    var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.55);
+                    canvas_context.font = afont + "px Georgia";
+                    canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
+                }
+                else if(this.segment_array[segment].is_hovered == false)
+                {
+                    var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.3);
+                    canvas_context.font = afont + "px Georgia";
+                    canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
+                }
             }
-            else if(this.segment_array[segment].is_hovered == false)
-            {
-                var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.3);
-                canvas_context.font = afont + "px Georgia";
-                canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
-            }
-        }
+        canvas_context.restore();
     },
     
     renderLines: function()
@@ -420,7 +427,7 @@ app.Game_Grid_Object = {
         for(var line = 0; line < this.lines_array.length; line++)
         {
             canvas_context.save();
-                canvas_context.strokeStyle = "red";
+                canvas_context.strokeStyle = "rgba(356,86,84," + this.lines_array[line].opacity + ")";
                 canvas_context.lineWidth = 5;
                 canvas_context.lineCap = "round";
                 
@@ -436,6 +443,19 @@ app.Game_Grid_Object = {
                 canvas_context.stroke();
             canvas_context.restore();
         }
+    },
+    
+    fadeLines: function(grid_lines_array, current_line)
+    {
+        var fade_interval = setInterval(function()
+        {
+            grid_lines_array[current_line].opacity -= 0.05;
+            if(grid_lines_array[current_line].opacity <= 0)
+            {
+                grid_lines_array.splice(current_line, 1);
+                clearInterval(fade_interval);
+            }
+        },27);
     },
     
     checkIfWon: function()

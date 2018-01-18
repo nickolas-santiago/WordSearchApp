@@ -82,5 +82,5 @@ var AppComponent = React.createClass({
 
 React.render(
     <AppComponent />,
-    document.getElementById('header_component')
+    document.getElementById('wordsearch_app')
 );

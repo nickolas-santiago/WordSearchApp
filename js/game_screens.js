@@ -35,7 +35,7 @@ app.Game_Screens = {
         document.querySelector("#playbutton").onclick = function()
         {
             $(".title_screen_button").toggle();
-            app.Game_Object.current_game_time = 2;
+            app.Game_Object.current_game_time = 60;
             $("#game_clock").html(app.Game_Object.current_game_time);
             $("#game_timer_flip_card").flip('toggle');
             $("#words_container_header_flip_card").flip('toggle');
@@ -71,9 +71,11 @@ app.Game_Screens = {
         y_offset += directions_header_img_height + (canvas.height * 0.074);
         
         canvas_context.fillStyle = "black";
-        canvas_context.font = font_size + "px Montserrat bold";
+        canvas_context.font = "bold " + font_size + "px Montserrat";
         canvas_context.textAlign = "center"; 
         canvas_context.textBaseline = "middle"; 
+        
+        
         for(var text_box = 0; text_box < text_boxes.length; text_box++)
         {
             var text_box_split = text_boxes[text_box].split(' ');
@@ -135,7 +137,7 @@ app.Game_Screens = {
         y_offset += (ready_screen_image_height + (canvas.height * 0.0741));
         
         canvas_context.fillStyle = "black";
-        canvas_context.font = font_size + "px Georgia bold";
+        canvas_context.font = "bold " + font_size + "px Montserrat";
         canvas_context.textAlign = "center"; 
         canvas_context.textBaseline = "middle"; 
         canvas_context.fillText(("ROUND " + (app.Game_Object.current_level + 1)), (canvas.width/2), y_offset);
@@ -190,7 +192,7 @@ app.Game_Screens = {
         y_offset += ((canvas.height * (1/4)) + (lose_screen_image_height/2) + (canvas.height * 0.0926));
         
         canvas_context.fillStyle = "black";
-        canvas_context.font = button_font_size + "px Georgia bold";
+        canvas_context.font = "bold " + button_font_size + "px Montserrat";
         canvas_context.textAlign = "center"; 
         canvas_context.textBaseline = "middle";
         canvas_context.fillText("Sorry, you could not find all the words in time.", (canvas.width/2), y_offset);
@@ -233,7 +235,7 @@ app.Game_Screens = {
         y_offset += ((canvas.height * (1/4)) + (win_screen_image_height/2) + 50);
         
         canvas_context.fillStyle = "black";
-        canvas_context.font = button_font_size + "px Georgia bold";
+        canvas_context.font = "bold " + font_size + "px Montserrat";
         canvas_context.textAlign = "center"; 
         canvas_context.textBaseline = "middle";
         

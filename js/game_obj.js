@@ -6,8 +6,9 @@ app.Game_Object = {
     game_states: {
         TITLE_SCREEN: 0,
         PLAYING: 1,
-        TRANSITION_SCREEN: 2,
-        END: 3
+        LETTERS_FADING: 2,
+        TRANSITION_SCREEN: 3,
+        END: 4
     },
     current_game_state: undefined,
     word_bank: ["DAIRY", "COW", "MEAT", "CHICKEN", "MILK", "SHAKE", "BURGER", "CREAMLINE", "LOCAL", "NEWYORK",
@@ -98,8 +99,22 @@ app.Game_Object = {
                 }
             }
             if(chance_to_change < (max_chance_to_change * ((self.current_level + 1)/self.num_of_levels)))
-            {
-                app.Game_Grid_Object.createGrid();
+            {               
+                var fade_leters_out_interval = setInterval(function()
+                {
+                    for(var segment = 0; segment < app.Game_Grid_Object.segment_array.length; segment++)
+                    {
+                        app.Game_Grid_Object.segment_array[segment].opacity -= 0.05;
+                        if(app.Game_Grid_Object.segment_array[segment].opacity <= 0)
+                        {
+                            if(segment == (app.Game_Grid_Object.segment_array.length - 1))
+                            {
+                                app.Game_Grid_Object.createGrid();
+                            }
+                            clearInterval(fade_leters_out_interval);
+                        }
+                    }
+                }, 30);
             }
             if(self.current_game_time == 0)
             {

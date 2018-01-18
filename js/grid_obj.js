@@ -72,12 +72,14 @@ app.Game_Grid_Object = {
             segment.letter = "";
             segment.is_hovered = false;
             segment.index = i;
+            segment.opacity = 0;
             this.segment_array.push(segment);
         }
     },
     
     initGrid: function()
     {
+        var self = this;
         var all_word_location_possibilities = [];   
         for(var word = 0; word < this.word_bank.length; word++)
         {
@@ -105,6 +107,18 @@ app.Game_Grid_Object = {
                 this.segment_array[segment].letter = this.generateRandomLetter();
             }
         }
+        
+        var fade_leters_in_interval = setInterval(function()
+        {
+            for(var segment = 0; segment < self.segment_array.length; segment++)
+            {
+                self.segment_array[segment].opacity += 0.05;
+                if(self.segment_array[segment].opacity >= 1)
+                {
+                    clearInterval(fade_leters_in_interval);
+                }
+            }
+        }, 30);
     },
     
     findWordLocationPossibilities: function(segment_array_length, length_of_word, word_location_possibilities)
@@ -367,7 +381,7 @@ app.Game_Grid_Object = {
                         }
                         else
                         {
-                            this.fadeLines(grid_lines_array, current_line);
+                            this.fadeLineOut(grid_lines_array, current_line);
                             return;
                         }
                     }
@@ -377,7 +391,7 @@ app.Game_Grid_Object = {
                     });
                     if(w == true)
                     {
-                        this.fadeLines(grid_lines_array, current_line);
+                        this.fadeLineOut(grid_lines_array, current_line);
                         return;
                     }
                     else
@@ -391,7 +405,7 @@ app.Game_Grid_Object = {
             }
             if(keep_line == false)
             {
-                this.fadeLines(grid_lines_array, current_line);
+                this.fadeLineOut(grid_lines_array, current_line);
                 return;
             }
         }
@@ -400,22 +414,23 @@ app.Game_Grid_Object = {
     renderGrid: function()
     {
         canvas_context.save();
-            canvas_context.fillStyle = "black";
+            //canvas_context.fillStyle = "black";
             canvas_context.textAlign = "center"; 
             canvas_context.textBaseline = "middle"; 
             for(var segment = 0; segment < this.segment_array.length; segment++)
             {
                 //render all the letters
+                canvas_context.fillStyle = "rgba(0, 0, 0, " + this.segment_array[segment].opacity + ")";
                 if(this.segment_array[segment].is_hovered == true)
                 {
                     var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.55);
-                    canvas_context.font = afont + "px Georgia";
+                    canvas_context.font = afont + "px Montserrat";
                     canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
                 }
                 else if(this.segment_array[segment].is_hovered == false)
                 {
                     var afont = ((canvas.height/Math.sqrt(this.total_number_of_segments)) * 0.3);
-                    canvas_context.font = afont + "px Georgia";
+                    canvas_context.font = afont + "px Montserrat";
                     canvas_context.fillText(this.segment_array[segment].letter, (this.segment_array[segment].xpos + (this.segment_array[segment].width/2)), (this.segment_array[segment].ypos + (this.segment_array[segment].height/2)));
                 }
             }
@@ -445,7 +460,7 @@ app.Game_Grid_Object = {
         }
     },
     
-    fadeLines: function(grid_lines_array, current_line)
+    fadeLineOut: function(grid_lines_array, current_line)
     {
         var fade_interval = setInterval(function()
         {

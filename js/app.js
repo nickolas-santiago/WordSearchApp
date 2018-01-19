@@ -28,6 +28,52 @@ var GameComponent = React.createClass({
         app.Game_Screens.renderTitleScreen();
         app.Game_Grid_Object.initEventListeners();
     },
+    
+    //---Button Events
+    playButtonEvent: function()
+    {
+        if(app.Game_Object.current_game_state == app.Game_Object.game_states.TITLE_SCREEN)
+        {
+            $(".title_screen_button").toggle();
+            app.Game_Object.current_game_time = 2;
+            $("#game_clock").html(app.Game_Object.current_game_time);
+            $("#game_timer_flip_card").flip('toggle');
+            $("#words_container_header_flip_card").flip('toggle');
+            app.Game_Object.init();
+            app.Game_Screens.renderTransitionScreen_Ready();
+        }
+        else if(app.Game_Object.current_game_state == app.Game_Object.game_states.TRANSITION_SCREEN)
+        {
+            $("#playbutton").toggle();
+            app.Game_Object.renderLevelWords();
+        }
+    },
+    directionsButtonEvent: function()
+    {
+        $(".title_screen_button").toggle();
+        app.Game_Screens.renderDirections();
+    },
+    backButtonEvent: function()
+    {
+        $("#backbutton").toggle();
+        app.Game_Screens.renderTitleScreen();
+    },
+    mainMenuButtonEvent: function()
+    {
+        $("#main_menu_button").toggle();
+        $("#game_timer_flip_card").flip('toggle');
+        $("#words_container_header_flip_card").flip('toggle');
+        app.Game_Object.levels.splice(0, app.Game_Object.levels.length);
+        if(app.Game_Object.current_game_state == app.Game_Object.game_states.GAME_LOST)
+        {
+            app.Game_Screens.renderTitleScreen();
+        }
+        else if(app.Game_Object.current_game_state == app.Game_Object.game_states.GAME_WON)
+        {
+            app.Game_Screens.renderTitleScreen();
+        }
+    },
+    
     render: function(){
         return (
             <div id="container">
@@ -35,10 +81,10 @@ var GameComponent = React.createClass({
                     This app uses the HTML canvas tag. To enjoy the full experience, please use a browser that supports
                     the HTML canvas tag.
                 </canvas>
-                <button id="playbutton" className="title_screen_button">PLAY</button>
-                <button id="directionsbutton" className="title_screen_button">DIRECTIONS</button>
-                <button id="backbutton">BACK</button>
-                <button id="main_menu_button">MAIN MENU</button>
+                <button id="playbutton" className="title_screen_button" onClick={this.playButtonEvent}>PLAY</button>
+                <button id="directionsbutton" className="title_screen_button" onClick={this.directionsButtonEvent}>DIRECTIONS</button>
+                <button id="backbutton" onClick={this.backButtonEvent}>BACK</button>
+                <button id="main_menu_button" onClick={this.mainMenuButtonEvent}>MAIN MENU</button>
                 <p id="current_time">oo</p>
             </div>
         );

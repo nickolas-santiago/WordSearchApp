@@ -8,7 +8,8 @@ app.Game_Object = {
         PLAYING: 1,
         LETTERS_FADING: 2,
         TRANSITION_SCREEN: 3,
-        END: 4
+        GAME_LOST: 4,
+        GAME_WON: 5
     },
     current_game_state: undefined,
     word_bank: ["DAIRY", "COW", "MEAT", "CHICKEN", "MILK", "SHAKE", "BURGER", "CREAMLINE", "LOCAL", "NEWYORK",
@@ -69,13 +70,6 @@ app.Game_Object = {
         }
     },
     
-    getRandomWordCount: function(min, max)
-    {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min)) + min;
-    },
-    
     loadLevel: function(current_level)
     {
         var self = this;
@@ -119,6 +113,7 @@ app.Game_Object = {
             if(self.current_game_time == 0)
             {
                 cancelAnimationFrame(app.Game_Grid_Object.animationID);
+                self.current_game_state = self.game_states.GAME_LOST;
                 app.Game_Screens.renderLoseScreen();
                 $(".level_word_flip_card").each(function()
                 {

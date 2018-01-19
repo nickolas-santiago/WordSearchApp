@@ -31,22 +31,6 @@ app.Game_Screens = {
             $(this).css({top: y_offset, left: (canvas.width/2) - ((button_width)/2)});
             y_offset += button_height + (canvas.height * 0.037);
         });
-        
-        document.querySelector("#playbutton").onclick = function()
-        {
-            $(".title_screen_button").toggle();
-            app.Game_Object.current_game_time = 60;
-            $("#game_clock").html(app.Game_Object.current_game_time);
-            $("#game_timer_flip_card").flip('toggle');
-            $("#words_container_header_flip_card").flip('toggle');
-            app.Game_Object.init();
-            self.renderTransitionScreen_Ready();
-        }
-        document.querySelector("#directionsbutton").onclick = function()
-        {
-            $(".title_screen_button").toggle();
-            self.renderDirections();
-        }
     },
     
     renderDirections: function()
@@ -108,12 +92,6 @@ app.Game_Screens = {
             var button_width = $(this).width();
             $(this).css({top: y_offset, left: (canvas.width/2) - ((button_width)/2)});
         });
-        
-        document.querySelector("#backbutton").onclick = function()
-        {
-            $("#backbutton").toggle();
-            self.renderTitleScreen();
-        }
     },
     
     renderTransitionScreen_Ready: function()
@@ -148,12 +126,6 @@ app.Game_Screens = {
         $("#playbutton").toggle();
         $("#playbutton").height(button_height);
         $("#playbutton").css({fontSize: button_font_size + "px", top: y_offset, left: (canvas.width/2) - ((button_width)/2)});
-        
-        document.querySelector("#playbutton").onclick = function()
-        {
-            $("#playbutton").toggle();
-            app.Game_Object.renderLevelWords();
-        }
     },
     
     renderTransitionScreen_Go: function()
@@ -184,7 +156,6 @@ app.Game_Screens = {
         var button_font_size = (canvas.height/25);
         var button_height = button_font_size + 0;
         var y_offset = 0;
-        app.Game_Object.current_game_state =  app.Game_Object.game_states.END;
         
         canvas_context.fillStyle = "white";
         canvas_context.fillRect(0, 0, canvas.width, canvas.height);
@@ -203,14 +174,6 @@ app.Game_Screens = {
         $("#main_menu_button").toggle();
         $("#main_menu_button").height(button_height);
         $("#main_menu_button").css({fontSize: button_font_size + "px", top: y_offset, left: ((canvas.width/2) - ($("#main_menu_button").width()/2))});
-        
-        document.querySelector("#main_menu_button").onclick = function()
-        {
-            $("#main_menu_button").toggle();
-            $("#game_timer_flip_card").flip('toggle');
-            $("#words_container_header_flip_card").flip('toggle');
-            self.renderTitleScreen();
-        }
     },
     
     renderWinScreen: function()
@@ -227,7 +190,6 @@ app.Game_Screens = {
         var button_font_size = (canvas.height/25);
         var button_height = button_font_size + 0;
         var y_offset = 0;
-        app.Game_Object.current_game_state =  app.Game_Object.game_states.END;
         
         canvas_context.fillStyle = "white";
         canvas_context.fillRect(0, 0, canvas.width, canvas.height);
@@ -266,13 +228,5 @@ app.Game_Screens = {
         $("#main_menu_button").toggle();
         $("#main_menu_button").height(button_height);
         $("#main_menu_button").css({fontSize: button_font_size + "px", top: y_offset, left: ((canvas.width/2) - ($("#main_menu_button").width()/2))});
-        
-        document.querySelector("#main_menu_button").onclick = function()
-        {
-            $("#main_menu_button").toggle();
-            $("#game_timer_flip_card").flip('toggle');
-            $("#words_container_header_flip_card").flip('toggle');
-            self.renderTitleScreen();
-        }
     }
 };

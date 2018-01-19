@@ -500,6 +500,7 @@ app.Game_Grid_Object = {
             this.lines_array.splice(0, this.lines_array.length);
             if(app.Game_Object.current_level == (app.Game_Object.num_of_levels - 1))
             {
+                app.Game_Object.current_game_state = app.Game_Object.game_states.GAME_WON;
                 app.Game_Screens.renderWinScreen();
             }
             else

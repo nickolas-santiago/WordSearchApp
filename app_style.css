@@ -30,8 +30,8 @@ body
 #container
 {
     position: relative;
-    width: 540px;
-    height: 540px;
+    width: 700px;
+    height: 700px;
     margin: 20px auto 35px auto;
 }
 button, canvas

@@ -35,7 +35,8 @@ var GameComponent = React.createClass({
         if(app.Game_Object.current_game_state == app.Game_Object.game_states.TITLE_SCREEN)
         {
             $(".title_screen_button").toggle();
-            app.Game_Object.current_game_time = 2;
+            $("#quit_game_button").toggle();
+            app.Game_Object.current_game_time = 2000;
             $("#game_clock").html(app.Game_Object.current_game_time);
             $("#game_timer_flip_card").flip('toggle');
             $("#words_container_header_flip_card").flip('toggle');
@@ -77,7 +78,7 @@ var GameComponent = React.createClass({
     render: function(){
         return (
             <div id="container">
-                <canvas id="canvas" width="540" height="540">
+                <canvas id="canvas" width="700" height="700">
                     This app uses the HTML canvas tag. To enjoy the full experience, please use a browser that supports
                     the HTML canvas tag.
                 </canvas>

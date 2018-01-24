@@ -170,11 +170,21 @@ app.Game_Object = {
             $(this).flip({trigger: "manual", axis: "x", speed: 450});
             $(this).height($(this).css('fontSize'));
             $(this).width(canvas.width/max_words_per_row);
-            $(this).css({position: "absolute", top: (Math.floor(index/max_words_per_row)) * 20, left: ((canvas.width * (index%max_words_per_row))/max_words_per_row)});
-        });
+            if((self.levels[self.current_level].level_word_bank.length%max_words_per_row != 0) && ((index + 1) > (max_words_per_row * (Math.floor(self.levels[self.current_level].level_word_bank.length/max_words_per_row)))))
+            {
+                $(this).width(canvas.width/(self.levels[self.current_level].level_word_bank.length - (max_words_per_row * (Math.floor(self.levels[self.current_level].level_word_bank.length/max_words_per_row)))));
+            }
+            $(this).css({position: "absolute", top: (7 + ((Math.floor(index/max_words_per_row)) * 27)), left: ($(this).width() * (index%max_words_per_row))});
+           
+        }); 
         
         var flip_level_word_cards_timer_interval = setInterval(function()
         {
+            if(self.current_level != 0)
+            {
+                self.current_game_time += 10;
+                $("#game_clock").html(self.current_game_time);
+            }
             if(current_word_flip_card >= (self.levels[self.current_level].level_word_bank.length - 1))
             {
                 $("#level_word_flip_card_" + current_word_flip_card).flip('toggle', function()

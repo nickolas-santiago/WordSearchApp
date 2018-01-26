@@ -5,23 +5,21 @@ app.Game_Screens = {
     renderTitleScreen: function()
     {
         var self = this;
-        var game_title_image = new Image();
-        game_title_image.src = "images/game_logo.png";
+        var game_title_image = $("#title_image");
         var game_title_image_width = (canvas.width * 0.963);
         var game_title_image_height = (game_title_image_width * 0.2442);
         var button_font_size = (canvas.height/25);
         var button_height = button_font_size + 0;
         var y_offset = (canvas.height * 0.1852);
         app.Game_Object.current_game_state =  app.Game_Object.game_states.TITLE_SCREEN;
-        
+        $("#title_image").toggle();
         $(".title_screen_button").toggle();
-        $("#game_timer_flip_card").flip({trigger: "manual", axis: "x", speed: 300});
-        $("#game_timer_flip_card").height($("#game_timer_flip_card").css('fontSize'));
-        
          
         canvas_context.fillStyle = "white";
         canvas_context.fillRect(0, 0, canvas.width, canvas.height);
-        canvas_context.drawImage(game_title_image, ((canvas.width/2) - (game_title_image_width/2)), y_offset, game_title_image_width, game_title_image_height);
+        game_title_image.width(game_title_image_width);
+        game_title_image.height(game_title_image_height);
+        game_title_image.css({top: y_offset, left: ((canvas.width/2) - (game_title_image_width/2))});
         y_offset += ((game_title_image_height * 1.5) + (canvas.height * 0.037));
 
         $(".title_screen_button").height(button_height);

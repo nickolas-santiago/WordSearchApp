@@ -11,6 +11,12 @@ body
     display: none;
 }
 
+#title_image
+{
+    position: absolute;
+    z-index: 1;
+}
+
 /*Header Component*/
 #app_header
 {
@@ -25,7 +31,7 @@ body
 {
     position: relative;
     margin: auto;
-    text-align: right;
+    text-align: center;
 }
 #container
 {

@@ -78,7 +78,15 @@ app.Game_Object = {
         this.game_timer = setInterval(function()
         {
             self.current_game_time -= 1;
-            $("#game_clock").html(self.current_game_time);
+            if($("#game_timer_flip_card").data("flip-model").isFlipped == true)
+            {
+                $("#game_timer_flip_card").find(".back").html(self.current_game_time);
+            }
+            else
+            {
+                $("#game_timer_flip_card").find(".front").html(self.current_game_time);
+            }
+            
             var max_chance_to_change = 0.05;
             var chance_to_change = Math.random();
             if(self.current_level == (self.num_of_levels - 1))
@@ -175,7 +183,6 @@ app.Game_Object = {
                 $(this).width(canvas.width/(self.levels[self.current_level].level_word_bank.length - (max_words_per_row * (Math.floor(self.levels[self.current_level].level_word_bank.length/max_words_per_row)))));
             }
             $(this).css({position: "absolute", top: (7 + ((Math.floor(index/max_words_per_row)) * 27)), left: ($(this).width() * (index%max_words_per_row))});
-           
         }); 
         
         var flip_level_word_cards_timer_interval = setInterval(function()
@@ -183,8 +190,18 @@ app.Game_Object = {
             if(self.current_level != 0)
             {
                 self.current_game_time += 10;
-                $("#game_clock").html(self.current_game_time);
+                if($("#game_timer_flip_card").data("flip-model").isFlipped == true)
+                {
+                    $("#game_timer_flip_card").find(".front").html(self.current_game_time);
+                    $("#game_timer_flip_card").flip('toggle');
+                }
+                else
+                {
+                    $("#game_timer_flip_card").find(".back").html(self.current_game_time);
+                    $("#game_timer_flip_card").flip('toggle');
+                }
             }
+            
             if(current_word_flip_card >= (self.levels[self.current_level].level_word_bank.length - 1))
             {
                 $("#level_word_flip_card_" + current_word_flip_card).flip('toggle', function()

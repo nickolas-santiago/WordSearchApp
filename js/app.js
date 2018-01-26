@@ -1,16 +1,21 @@
 var AppComponent_Header = React.createClass({
+    componentDidMount: function()
+    {
+        $("#game_timer_flip_card").width(canvas.width);
+        $("#game_timer_flip_card").flip({trigger: "manual", axis: "x", speed: 300});
+        $("#game_timer_flip_card").height($("#game_timer_flip_card").css('fontSize'));
+    },
+    
     render: function(){
         return (
             <div>
-                <img src="images/game_header.png" id="app_header" />
+                <img src="images/game_header.png" id="app_header" />                                                                                                 
                 <div id="game_timer_flip_card">
                     <div className="front">
                     </div>
                     <div className="back">
-                        <p id="game_clock">--</p>
                     </div>
                 </div>
-                <img src="images/game_logo.png" id="title_image" />
                 <img src="images/directions_header.png" id="directions_header_image" />
                 <img src="images/ready_screen_image.png" id="ready_screen_image" />
                 <img src="images/go_screen_image.png" id="go_screen_image" />
@@ -34,11 +39,20 @@ var GameComponent = React.createClass({
     {
         if(app.Game_Object.current_game_state == app.Game_Object.game_states.TITLE_SCREEN)
         {
+            $("#title_image").toggle();
             $(".title_screen_button").toggle();
             $("#quit_game_button").toggle();
-            app.Game_Object.current_game_time = 2000;
-            $("#game_clock").html(app.Game_Object.current_game_time);
-            $("#game_timer_flip_card").flip('toggle');
+            app.Game_Object.current_game_time = 120; //---the starting time for each game
+            if($("#game_timer_flip_card").data("flip-model").isFlipped == true)
+            {
+                $("#game_timer_flip_card").find(".front").html(app.Game_Object.current_game_time);
+                $("#game_timer_flip_card").flip('toggle');
+            }
+            else
+            {
+                $("#game_timer_flip_card").find(".back").html(app.Game_Object.current_game_time);
+                $("#game_timer_flip_card").flip('toggle');
+            }
             $("#words_container_header_flip_card").flip('toggle');
             app.Game_Object.init();
             app.Game_Screens.renderTransitionScreen_Ready();
@@ -51,6 +65,7 @@ var GameComponent = React.createClass({
     },
     directionsButtonEvent: function()
     {
+        $("#title_image").toggle();
         $(".title_screen_button").toggle();
         app.Game_Screens.renderDirections();
     },
@@ -62,6 +77,14 @@ var GameComponent = React.createClass({
     mainMenuButtonEvent: function()
     {
         $("#main_menu_button").toggle();
+        if($("#game_timer_flip_card").data("flip-model").isFlipped == true)
+        {
+            $("#game_timer_flip_card").find(".front").html("");
+        }
+        else
+        {
+            $("#game_timer_flip_card").find(".back").html("");
+        }
         $("#game_timer_flip_card").flip('toggle');
         $("#words_container_header_flip_card").flip('toggle');
         app.Game_Object.levels.splice(0, app.Game_Object.levels.length);
@@ -78,6 +101,7 @@ var GameComponent = React.createClass({
     render: function(){
         return (
             <div id="container">
+                <img src="images/game_logo.png" id="title_image" />
                 <canvas id="canvas" width="700" height="700">
                     This app uses the HTML canvas tag. To enjoy the full experience, please use a browser that supports
                     the HTML canvas tag.
@@ -95,7 +119,6 @@ var WordsContainerComponent = React.createClass({
     componentDidMount: function()
     {
         $("#words_container_component").width(canvas.width);
-        $("#game_timer_flip_card").width(canvas.width);
         $("#words_container_header_flip_card").flip({trigger: "manual", axis: "x", speed: 300});
         $("#words_container_header_flip_card").height($("#words_container_header_flip_card").css('fontSize'));
     },

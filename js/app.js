@@ -8,8 +8,7 @@ var AppComponent_Header = React.createClass({
     
     render: function(){
         return (
-            <div>
-                <img src="images/game_header.png" id="app_header" />                                                                                                 
+            <div>                                                                                               
                 <div id="game_timer_flip_card">
                     <div className="front">
                     </div>

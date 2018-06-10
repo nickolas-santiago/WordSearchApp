@@ -11,27 +11,18 @@ body
     display: none;
 }
 
-#title_image
+#wordsearch_app
 {
-    position: absolute;
-    z-index: 1;
+    margin-top: 50px;
 }
 
-/*Header Component*/
-#app_header
-{
-    width: 500px;
-    height: 100px;
-    display: block;
-    margin: 20px auto 20px auto;
-}
-
-/*App Component -- basically the game grid and all the buttons involved*/
+/*App Component -- basically the game grid, game logo, and all the buttons involved*/
 #game_timer_flip_card
 {
     position: relative;
     margin: auto;
     text-align: center;
+    font-weight: 700;
 }
 #container
 {
@@ -39,6 +30,11 @@ body
     width: 700px;
     height: 700px;
     margin: 20px auto 35px auto;
+}
+#title_image
+{
+    position: absolute;
+    z-index: 1;
 }
 button, canvas
 {
@@ -87,6 +83,7 @@ button:active, button:focus, button.active
 .level_word, .level_word_found, .back, .front
 {
     margin: 0;
+    font-size: 20px;
 }
 .level_word_found
 {

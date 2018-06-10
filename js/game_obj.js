@@ -12,8 +12,8 @@ app.Game_Object = {
         GAME_WON: 5
     },
     current_game_state: undefined,
-    word_bank: ["DAIRY", "COW", "MEAT", "CHICKEN", "MILK", "SHAKE", "BURGER", "CREAMLINE", "LOCAL", "NEWYORK",
-                   "CHELSEA", "MARKET", "BEEF", "EGGNOG", "FARM", "VANILLA", "FUDGE", "SOUP", "RAW", "GRILL"],
+    word_bank: ["NOHO", "SOHO", "ASTORIA", "FLUSHING", "HARLEM", "HIGHBRIDGE", "KINGSBRIDGE", "WOODLAWN", "BAYCHESTER", "GREENPOINT",
+                "CHELSEA", "BUSHWICK", "FLATBUSH", "CANARSIE", "ELMHURST", "GLENDALE", "TRIBECA", "NOLITA", "INWOOD", "MELROSE"],
     num_of_levels: 3,
     levels: [],
     current_level: undefined,

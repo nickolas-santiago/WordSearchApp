@@ -39,8 +39,8 @@ app.Game_Screens = {
         directions_header_img.src = document.querySelector("#directions_header_image").src;
         var directions_header_img_width = (canvas.width * 0.4941);
         var directions_header_img_height = (directions_header_img_width * 0.1312);
-        var text_boxes = ["Can you find all 20 of the Creamline words in time?",
-                          "Click and drag your mouse across the grid to select a word. But act fast - the word might not be there long."];
+        var text_boxes = ["Can you find all 20 of the New York neighborhood names in time?",
+                          "Click and drag your mouse across the grid to select a word. But act fast - the word might not be there long!"];
         var font_size = (canvas.height/28);
         var line_height = (canvas.height * 0.037);
         var max_text_box_width = (canvas.width * 0.8);
